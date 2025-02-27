@@ -6,9 +6,9 @@ def runPipeline(image_bgr, llrobot):
     # Convert the input image to the HSV color space
     img_hsv = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2HSV)
 
-    # Define the HSV range for the color yellow
-    lower_yellow = np.array([30, 50, 50])
-    upper_yellow = np.array([60, 100, 100])
+    # Define the HSV range
+    lower_yellow = np.array([158, 10, 40])
+    upper_yellow = np.array([172, 60, 100])
 
     lower_yellow_opencv = np.array([
         int(lower_yellow[0] / 2),  # Hue: 0-360 to 0-179
