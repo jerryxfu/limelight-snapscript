@@ -29,18 +29,38 @@ def runPipeline(image, llrobot):
             x, y, w, h = cv2.boundingRect(contour)
             if w >= min_width_algae and h >= min_height_algae:
                 valid_contours.append(contour)
-                if valid_contours:
-                    # cv2.drawContours(image, contours, -1, [255, 255, 255], 1)
 
-                    # Record the largest contour
-                    largestContour = max(contours, key=cv2.contourArea)
+            if valid_contours:
+                # cv2.drawContours(image, contours, -1, [255, 255, 255], 1)
 
-                    # Get the axis aligned bounding box
-                    x, y, w, h = cv2.boundingRect(largestContour)
+                # Record the largest contour
+                largestContour = max(contours, key=cv2.contourArea)
 
-                    # Draw the bounding box
-                    cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 255), 2)
+                # Get the axis aligned bounding box
+                x, y, w, h = cv2.boundingRect(largestContour)
 
-                    # Data to send back to the robot
-                    llpython = [x, y, w, h]  # Return the largest contour for the LL crosshair, the modified image, and custom robot data
+                # Draw the bounding box
+                cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 255), 2)
+
+                # Data to send back to the robot
+                llpython = [x, y, w, h]  # Return the largest contour for the LL crosshair, the modified image, and custom robot data
     return largestContour, image, llpython
+
+
+cap = cv2.VideoCapture(0)
+cap.set(cv2.CAP_PROP_EXPOSURE, -4)
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        break
+
+    largestContour, image, llpython = runPipeline(frame, None)
+    print(llpython)
+
+    cv2.imshow("Image", image)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows()
