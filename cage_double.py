@@ -4,15 +4,17 @@ import numpy as np
 
 def runPipeline(image, llrobot):
     img_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    preview = True  # Use the values tuned for the Limelight (left) or for the local (right) camera?
+    ll_config = True  # Use the values tuned for the Limelight (left) or for the local (right) camera?
 
-    # HSV ranges for red and blue cages
-    lower_cage_red_m1 = np.array([340, 55, 35]) if not preview else np.array([330, 55, 40])
-    upper_cage_red_m1 = np.array([360, 100, 90]) if not preview else np.array([360, 100, 90])
-    lower_cage_red_m2 = np.array([0, 55, 35]) if not preview else np.array([0, 55, 40])
-    upper_cage_red_m2 = np.array([10, 100, 90]) if not preview else np.array([10, 100, 90])
-    lower_cage_blue = np.array([210, 100, 40]) if not preview else np.array([210, 100, 40])  # TODO: TUNE
-    upper_cage_blue = np.array([240, 100, 100]) if not preview else np.array([240, 100, 100])  # TODO: TUNE
+    # Define HSV ranges for red and blue cages
+    lower_cage_red_m1 = np.array([338, 55, 38]) if ll_config else np.array([330, 55, 40])
+    upper_cage_red_m1 = np.array([360, 100, 90]) if ll_config else np.array([360, 100, 90])
+
+    lower_cage_red_m2 = np.array([0, 55, 38]) if ll_config else np.array([0, 55, 40])
+    upper_cage_red_m2 = np.array([10, 100, 90]) if ll_config else np.array([10, 100, 90])
+
+    lower_cage_blue = np.array([200, 55, 20]) if ll_config else np.array([210, 100, 40])
+    upper_cage_blue = np.array([240, 100, 90]) if ll_config else np.array([240, 100, 100])
 
     # Convert HSV ranges to OpenCV HSV format
     lower_cage_red_cv_m1 = np.array([int(lower_cage_red_m1[0] / 2), int(lower_cage_red_m1[1] * 2.55), int(lower_cage_red_m1[2] * 2.55)])
@@ -29,6 +31,7 @@ def runPipeline(image, llrobot):
 
     # Combine the masks
     img_threshold = cv2.bitwise_or(cv2.bitwise_or(cage_red_mask1, cage_red_mask2), cage_blue_mask)
+    # img_threshold = cv2.bitwise_or(cage_red_mask1, cage_red_mask2)
 
     # Find contours
     contours, _ = cv2.findContours(img_threshold, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
