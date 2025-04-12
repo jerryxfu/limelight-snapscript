@@ -35,17 +35,19 @@ def runPipeline(image, llrobot):
 
     # Find contours
     contours, _ = cv2.findContours(img_threshold, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    largestContour = np.array([[]])  # Empty array of values to send back to the robot
+    # Data to send back to the robot
+    largestContour = np.array([[]])
     llpython = []
 
     if len(contours) > 0:
-        min_width_cage = 16
-        min_height_cage = 64
+        min_contour_width = 12
+        min_contour_height = 4
 
         valid_contours = []
         for contour in contours:
             x, y, w, h = cv2.boundingRect(contour)
-            if w >= min_width_cage and h >= min_height_cage:
+            # Check if the contour meets the size. Do not check for aspect ratio here
+            if w >= min_contour_width and h >= min_contour_height:
                 valid_contours.append(contour)
 
         if len(valid_contours) > 0:
@@ -64,9 +66,16 @@ def runPipeline(image, llrobot):
             # Get the axis-aligned bounding box for the merged contour
             x, y, w, h = cv2.boundingRect(merged_contour)
 
-            cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 255), 2)
-
-            # Data to send back to the robot
+            # Check if the contour meets the size and aspect ratio criteria
+            min_width_cage = 64
+            min_height_cage = 192
+            if (w >= min_width_cage and h >= min_height_cage) and (2.0 < h / w < 3.7):
+                # Data to send back to the robot
+                largestContour = merged_contour
+                llpython = [x, y, w, h]
+                cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            else:
+                cv2.rectangle(image, (x, y), (x + w, y + h), (0, 0, 255), 1)
 
     return largestContour, image, llpython
 
